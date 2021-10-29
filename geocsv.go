@@ -87,6 +87,44 @@ func (gc *GeoCSV) readRecords() (err error) {
 	return
 }
 
+func (gc *GeoCSV) RowCount() int {
+	return len(gc.rows)
+}
+
+func (gc *GeoCSV) Feature(i int) *geom.Feature {
+	if i < gc.RowCount() {
+		var (
+			lng      = defaultCoordValue
+			lat      = defaultCoordValue
+			geometry geom.Geometry
+		)
+		properties := map[string]interface{}{}
+
+		for j, cell := range gc.rows[i] {
+			fieldName := gc.headers[j]
+			if len(gc.options.WKTField) > 0 && fieldName == gc.options.WKTField {
+				if wktGeometry, _, wktError := wkt.DecodeWKT([]byte(cell)); wktError == nil {
+					geometry = general.GeometryDataAsGeometry(wktGeometry)
+				}
+			} else if len(gc.options.XField) > 0 && fieldName == gc.options.XField {
+				lng, _ = strconv.ParseFloat(cell, 64)
+			} else if len(gc.options.YField) > 0 && fieldName == gc.options.YField {
+				lat, _ = strconv.ParseFloat(cell, 64)
+			}
+			properties[fieldName] = cell
+		}
+		if geometry == nil && lng != defaultCoordValue && lat != defaultCoordValue {
+			geometry = general.NewPoint([]float64{lng, lat})
+		}
+		if geometry != nil {
+			feature := geom.NewFeature(geometry)
+			feature.Properties = properties
+			return feature
+		}
+	}
+	return nil
+}
+
 func Read(filePath string, options GeoCSVOptions) (gc *GeoCSV, err error) {
 	gc = NewGeoCSV()
 	gc.options = options
@@ -100,7 +138,7 @@ func Read(filePath string, options GeoCSVOptions) (gc *GeoCSV, err error) {
 	return
 }
 
-func (gc *GeoCSV) ToGeoJSON() (features *geom.FeatureCollection) {
+func (gc *GeoCSV) ToFeatureCollection() (features *geom.FeatureCollection) {
 	features = geom.NewFeatureCollection()
 	for _, row := range gc.rows {
 		var (

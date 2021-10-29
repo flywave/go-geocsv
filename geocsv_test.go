@@ -39,7 +39,7 @@ func TestGeoCSV_Test1(t *testing.T) {
 				if len(gc.rows) != 4 {
 					t.Error("length of rows is wrong")
 				}
-				features := gc.ToGeoJSON()
+				features := gc.ToFeatureCollection()
 				if len(features.Features) != 4 {
 					t.Error("length of features is wrong")
 				}
@@ -84,7 +84,7 @@ func TestGeoCSV_Test2(t *testing.T) {
 				if len(gc.rows) != 4 {
 					t.Error("length of rows is wrong")
 				}
-				features := gc.ToGeoJSON()
+				features := gc.ToFeatureCollection()
 				if len(features.Features) != 4 {
 					t.Error("length of features is wrong")
 				}
