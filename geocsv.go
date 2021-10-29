@@ -95,6 +95,31 @@ func (gc *GeoCSV) readRecords() (err error) {
 	return
 }
 
+func (gc *GeoCSV) Valid() bool {
+	if len(gc.headers) == 0 || gc.RowCount() == 0 {
+		return false
+	}
+	if len(gc.options.WKTField) > 0 {
+		for _, fieldName := range gc.headers {
+			if fieldName == gc.options.WKTField {
+				return true
+			}
+		}
+	} else {
+		for _, fieldName := range gc.headers {
+			xfield := false
+			yfield := false
+			if len(gc.options.XField) > 0 && fieldName == gc.options.XField {
+				xfield = true
+			} else if len(gc.options.YField) > 0 && fieldName == gc.options.YField {
+				yfield = true
+			}
+			return xfield && yfield
+		}
+	}
+	return false
+}
+
 func (gc *GeoCSV) RowCount() int {
 	return len(gc.rows)
 }
