@@ -19,6 +19,7 @@ var defaultCoordValue = float64(-9999)
 
 type GeoCSV struct {
 	file    *os.File
+	reader  io.Reader
 	headers []string
 	rows    [][]string
 	options GeoCSVOptions
@@ -36,14 +37,21 @@ func NewGeoCSV() (gc *GeoCSV) {
 	return
 }
 
+func (gc *GeoCSV) getReader() io.Reader {
+	if gc.file != nil {
+		return gc.file
+	}
+	return gc.reader
+}
+
 func (gc *GeoCSV) readRecords() (err error) {
-	if gc.file == nil {
+	if gc.getReader() == nil {
 		err = errors.New("file is nil")
 		return
 	}
 	headerRead := false
 	gbkDecoder := simplifiedchinese.GBK.NewDecoder()
-	reader := csv.NewReader(gc.file)
+	reader := csv.NewReader(gc.getReader())
 	for {
 		record, readErr := reader.Read()
 		if readErr == io.EOF {
@@ -125,13 +133,23 @@ func (gc *GeoCSV) Feature(i int) *geom.Feature {
 	return nil
 }
 
-func Read(filePath string, options GeoCSVOptions) (gc *GeoCSV, err error) {
+func ReadFile(filePath string, options GeoCSVOptions) (gc *GeoCSV, err error) {
 	gc = NewGeoCSV()
 	gc.options = options
 	if gc.file, err = os.Open(filePath); err != nil {
 		return
 	}
 	defer gc.file.Close()
+	if err = gc.readRecords(); err != nil {
+		return
+	}
+	return
+}
+
+func Read(reader io.Reader, options GeoCSVOptions) (gc *GeoCSV, err error) {
+	gc = NewGeoCSV()
+	gc.options = options
+	gc.reader = reader
 	if err = gc.readRecords(); err != nil {
 		return
 	}

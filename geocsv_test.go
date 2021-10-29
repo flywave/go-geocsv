@@ -30,7 +30,7 @@ func TestGeoCSV_Test1(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if gc, err := Read(tt.args.filePath, tt.args.options); (err != nil) != tt.wantErr {
+			if gc, err := ReadFile(tt.args.filePath, tt.args.options); (err != nil) != tt.wantErr {
 				t.Errorf("GeoCSV.Read() error = %v, wantErr %v", err, tt.wantErr)
 			} else {
 				if len(gc.headers) != 4 {
@@ -75,7 +75,7 @@ func TestGeoCSV_Test2(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if gc, err := Read(tt.args.filePath, tt.args.options); (err != nil) != tt.wantErr {
+			if gc, err := ReadFile(tt.args.filePath, tt.args.options); (err != nil) != tt.wantErr {
 				t.Errorf("GeoCSV.Read() error = %v, wantErr %v", err, tt.wantErr)
 			} else {
 				if len(gc.headers) != 3 {
