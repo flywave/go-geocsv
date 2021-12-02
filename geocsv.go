@@ -107,16 +107,16 @@ func (gc *GeoCSV) Valid() bool {
 		}
 	}
 	if len(gc.options.XField) > 0 && len(gc.options.YField) > 0 {
+		xfield := false
+		yfield := false
 		for _, fieldName := range gc.headers {
-			xfield := false
-			yfield := false
 			if len(gc.options.XField) > 0 && fieldName == gc.options.XField {
 				xfield = true
 			} else if len(gc.options.YField) > 0 && fieldName == gc.options.YField {
 				yfield = true
 			}
-			return xfield && yfield
 		}
+		return xfield && yfield
 	}
 	return false
 }
